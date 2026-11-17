@@ -40,6 +40,7 @@ router = APIRouter(
         "associés à chaque photo. Cette route ne modifie aucune donnée et "
         "retourne une liste vide lorsqu'aucun album n'est encore disponible."
     ),
+    response_description="Liste des albums photo enregistrés.",
 )
 async def list_albums() -> list[Album]:
     """Retourne tous les albums photo disponibles."""
@@ -57,6 +58,7 @@ async def list_albums() -> list[Album]:
         "un ObjectId MongoDB valide. Une réponse 404 est retournée lorsque "
         "l'album demandé n'existe pas."
     ),
+    response_description="Album photo complet avec ses photos et commentaires.",
 )
 async def get_album(album_id: PydanticObjectId) -> Album:
     """Retourne un album et l'ensemble de ses photos et commentaires."""
@@ -79,6 +81,7 @@ async def get_album(album_id: PydanticObjectId) -> Album:
         "créé avec son identifiant MongoDB. Une réponse 201 confirme la "
         "création ; les données invalides sont rejetées par FastAPI."
     ),
+    response_description="Album nouvellement créé avec son identifiant MongoDB.",
 )
 async def create_album(data: AlbumCreate) -> Album:
     """Crée un album photo associé à un événement existant."""
@@ -98,6 +101,7 @@ async def create_album(data: AlbumCreate) -> Album:
         "est retournée si cet album n'existe pas, puis le document mis à jour "
         "est renvoyé en cas de succès."
     ),
+    response_description="Album photo mis à jour.",
 )
 async def update_album(
     album_id: PydanticObjectId,
@@ -127,6 +131,7 @@ async def update_album(
         "statut 204 confirme l'opération. Une réponse 404 est renvoyée si "
         "l'album n'existe pas."
     ),
+    response_description="Aucun contenu ; le statut 204 confirme la suppression.",
 )
 async def delete_album(album_id: PydanticObjectId) -> None:
     """Supprime un album ainsi que ses photos et commentaires intégrés."""
@@ -150,6 +155,7 @@ async def delete_album(album_id: PydanticObjectId) -> None:
         "`POST /albums/{album_id}/photos/{photo_id}/commentaires`. Une "
         "réponse 404 est renvoyée si l'album n'existe pas."
     ),
+    response_description="Photo ajoutée à l'album.",
 )
 async def add_photo(
     album_id: PydanticObjectId,
@@ -178,6 +184,7 @@ async def add_photo(
         "commentaire. Une réponse 404 est renvoyée si l'album ou la photo "
         "n'existe pas ; une réponse 201 confirme la création du commentaire."
     ),
+    response_description="Commentaire ajouté à la photo.",
 )
 async def add_photo_comment(
     album_id: PydanticObjectId,
