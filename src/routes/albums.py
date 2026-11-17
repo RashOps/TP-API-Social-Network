@@ -31,9 +31,12 @@ router = APIRouter(
     "/",
     summary="Lister les albums photo",
     description=(
-        "Retourne tous les albums photo enregistrés dans l'application. "
-        "Chaque album contient l'identifiant de son événement ainsi que la liste "
-        "des photos et des commentaires associés."
+        "Cette route retourne l'ensemble des albums photo enregistrés dans "
+        "l'application. Chaque album est rattaché à un seul événement grâce à "
+        "son champ `evenement_id`. La réponse contient également les photos "
+        "publiées, l'identifiant de leur participant et les commentaires "
+        "associés à chaque photo. Cette route ne modifie aucune donnée et "
+        "retourne une liste vide lorsqu'aucun album n'est encore disponible."
     ),
 )
 async def list_albums() -> list[Album]:
@@ -45,10 +48,12 @@ async def list_albums() -> list[Album]:
     "/{album_id}",
     summary="Consulter un album photo",
     description=(
-        "Recherche un album à partir de son identifiant MongoDB et retourne "
-        "son événement, ses photos, les participants qui les ont publiées et "
-        "les commentaires présents sur chaque photo. "
-        "Retourne 404 si l'album n'existe pas."
+        "Cette route recherche un album à partir de son identifiant MongoDB. "
+        "Elle retourne l'identifiant de l'événement concerné, toutes les "
+        "photos publiées dans l'album, les participants à l'origine de ces "
+        "photos ainsi que les commentaires présents. L'identifiant doit être "
+        "un ObjectId MongoDB valide. Une réponse 404 est retournée lorsque "
+        "l'album demandé n'existe pas."
     ),
 )
 async def get_album(album_id: PydanticObjectId) -> Album:
@@ -65,10 +70,12 @@ async def get_album(album_id: PydanticObjectId) -> Album:
     status_code=status.HTTP_201_CREATED,
     summary="Créer un album photo",
     description=(
-        "Crée un album et l'associe à un événement grâce à `evenement_id`. "
-        "Un album est initialement vide : les photos sont ajoutées ensuite "
-        "avec la route dédiée. "
-        "Retourne 201 lorsque l'album est créé."
+        "Cette route crée un nouvel album photo et l'associe à un événement "
+        "avec le champ obligatoire `evenement_id`. L'album est créé vide : "
+        "les photos seront ajoutées séparément avec la route "
+        "`POST /albums/{album_id}/photos`. Le service retourne le document "
+        "créé avec son identifiant MongoDB. Une réponse 201 confirme la "
+        "création ; les données invalides sont rejetées par FastAPI."
     ),
 )
 async def create_album(data: AlbumCreate) -> Album:
@@ -82,9 +89,12 @@ async def create_album(data: AlbumCreate) -> Album:
     "/{album_id}",
     summary="Modifier un album photo",
     description=(
-        "Met à jour les informations modifiables d'un album existant. "
-        "Les champs absents de la requête restent inchangés. "
-        "Retourne 404 si l'album demandé n'existe pas."
+        "Cette route modifie les informations autorisées d'un album existant. "
+        "La mise à jour est partielle : seuls les champs fournis dans le corps "
+        "de la requête sont appliqués et les autres restent inchangés. "
+        "L'identifiant `album_id` désigne l'album à modifier. Une réponse 404 "
+        "est retournée si cet album n'existe pas, puis le document mis à jour "
+        "est renvoyé en cas de succès."
     ),
 )
 async def update_album(
@@ -108,9 +118,12 @@ async def update_album(
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Supprimer un album photo",
     description=(
-        "Supprime définitivement l'album identifié ainsi que les photos et "
-        "commentaires qu'il contient. "
-        "Retourne 404 si l'album n'existe pas et 204 en cas de succès."
+        "Cette route supprime définitivement l'album identifié par "
+        "`album_id`. Les photos et les commentaires intégrés à cet album sont "
+        "également supprimés puisqu'ils appartiennent au document de l'album. "
+        "Aucune donnée n'est retournée lorsque la suppression réussit : le "
+        "statut 204 confirme l'opération. Une réponse 404 est renvoyée si "
+        "l'album n'existe pas."
     ),
 )
 async def delete_album(album_id: PydanticObjectId) -> None:
@@ -127,10 +140,13 @@ async def delete_album(album_id: PydanticObjectId) -> None:
     status_code=status.HTTP_201_CREATED,
     summary="Ajouter une photo à un album",
     description=(
-        "Ajoute une photo dans un album existant. Le champ `participant_id` "
-        "identifie le participant qui publie la photo et `url` contient son "
-        "emplacement. Une photo est créée sans commentaire et peut ensuite "
-        "être commentée avec la route dédiée."
+        "Cette route ajoute une nouvelle photo dans l'album indiqué par "
+        "`album_id`. Le champ `participant_id` identifie le participant qui "
+        "publie la photo et `url` contient l'adresse de l'image. Une photo "
+        "nouvellement créée ne possède aucun commentaire ; elle peut ensuite "
+        "être commentée avec la route "
+        "`POST /albums/{album_id}/photos/{photo_id}/commentaires`. Une "
+        "réponse 404 est renvoyée si l'album n'existe pas."
     ),
 )
 async def add_photo(
@@ -153,9 +169,12 @@ async def add_photo(
     status_code=status.HTTP_201_CREATED,
     summary="Commenter une photo",
     description=(
-        "Ajoute un commentaire à une photo précise d'un album. "
-        "L'identifiant `photo_id` doit correspondre à une photo présente dans "
-        "l'album indiqué. Retourne 404 si l'album ou la photo est introuvable."
+        "Cette route ajoute un commentaire à une photo précise. "
+        "`album_id` identifie l'album parent et `photo_id` doit correspondre "
+        "à une photo effectivement présente dans cet album. Le corps de la "
+        "requête contient l'identifiant de l'auteur et le contenu du "
+        "commentaire. Une réponse 404 est renvoyée si l'album ou la photo "
+        "n'existe pas ; une réponse 201 confirme la création du commentaire."
     ),
 )
 async def add_photo_comment(

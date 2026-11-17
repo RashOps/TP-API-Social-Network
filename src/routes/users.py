@@ -14,7 +14,12 @@ router = APIRouter(
 @router.get(
     "/",
     summary="Lister les utilisateurs",
-    description="Retourne tous les utilisateurs enregistrés dans la base.",
+    description=(
+        "Retourne la liste complète des utilisateurs enregistrés dans MongoDB. "
+        "Chaque élément contient les informations publiques du compte et son "
+        "identifiant. Cette route est en lecture seule et retourne une liste "
+        "vide si aucun utilisateur n'est enregistré."
+    ),
 )
 async def list_users() -> list[User]:
     """Retourne tous les utilisateurs enregistrés."""
@@ -24,7 +29,11 @@ async def list_users() -> list[User]:
 @router.get(
     "/{user_id}",
     summary="Consulter un utilisateur",
-    description="Retourne un utilisateur grâce à son identifiant MongoDB. Retourne 404 s'il n'existe pas.",
+    description=(
+        "Recherche un utilisateur à partir de son identifiant MongoDB valide "
+        "et retourne ses informations. Une réponse 404 est renvoyée si aucun "
+        "utilisateur ne correspond à l'identifiant fourni."
+    ),
 )
 async def get_user(user_id: PydanticObjectId) -> User:
     """Retourne un utilisateur grâce à son identifiant MongoDB."""
@@ -39,7 +48,12 @@ async def get_user(user_id: PydanticObjectId) -> User:
     "/",
     status_code=status.HTTP_201_CREATED,
     summary="Créer un utilisateur",
-    description="Crée un utilisateur avec un email valide. L'email doit être unique ; un doublon retourne 409.",
+    description=(
+        "Crée un compte utilisateur à partir de son nom, son email, son mot "
+        "de passe et son rôle. L'email est validé puis contrôlé par un index "
+        "unique MongoDB : une adresse déjà utilisée retourne 409. Une réponse "
+        "201 contient l'utilisateur nouvellement créé."
+    ),
 )
 async def create_user(user_data: UserCreate) -> User:
     """Crée un utilisateur et refuse les emails déjà utilisés."""
@@ -55,7 +69,12 @@ async def create_user(user_data: UserCreate) -> User:
 @router.patch(
     "/{user_id}",
     summary="Modifier un utilisateur",
-    description="Modifie uniquement les champs fournis pour l'utilisateur indiqué. Retourne 404 ou 409 selon l'erreur.",
+    description=(
+        "Met à jour partiellement le compte correspondant à `user_id`. Les "
+        "champs absents sont conservés et seuls les champs fournis sont "
+        "modifiés. Retourne 404 si l'utilisateur n'existe pas ou 409 si le "
+        "nouvel email est déjà utilisé."
+    ),
 )
 async def update_user(
     user_id: PydanticObjectId,
@@ -81,7 +100,11 @@ async def update_user(
     "/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Supprimer un utilisateur",
-    description="Supprime définitivement l'utilisateur indiqué et retourne 204 en cas de succès.",
+    description=(
+        "Supprime définitivement le compte correspondant à `user_id`. "
+        "L'opération ne retourne pas de contenu en cas de succès et renvoie "
+        "204. Une réponse 404 est produite lorsque l'utilisateur est absent."
+    ),
 )
 async def delete_user(user_id: PydanticObjectId) -> None:
     """Supprime un utilisateur existant."""

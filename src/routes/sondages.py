@@ -19,7 +19,11 @@ router = APIRouter(
 @router.get(
     "/",
     summary="Lister les sondages",
-    description="Retourne tous les sondages avec leurs questions, choix et votes.",
+    description=(
+        "Retourne tous les sondages avec leur événement, leur créateur, leurs "
+        "questions, les choix disponibles et les votes enregistrés. Cette "
+        "route permet de consulter les résultats sans modifier les réponses."
+    ),
 )
 async def list_sondages() -> list[Sondage]:
     """Retourne tous les sondages créés pour les événements."""
@@ -29,7 +33,11 @@ async def list_sondages() -> list[Sondage]:
 @router.get(
     "/{sondage_id}",
     summary="Consulter un sondage",
-    description="Retourne un sondage grâce à son identifiant. Retourne 404 s'il n'existe pas.",
+    description=(
+        "Retourne le sondage identifié par `sondage_id`, ses questions, ses "
+        "choix et les votes déjà enregistrés. Retourne 404 lorsque le sondage "
+        "n'existe pas."
+    ),
 )
 async def get_sondage(sondage_id: PydanticObjectId) -> Sondage:
     """Retourne un sondage avec ses questions, choix et votes."""
@@ -44,7 +52,12 @@ async def get_sondage(sondage_id: PydanticObjectId) -> Sondage:
     "/",
     status_code=status.HTTP_201_CREATED,
     summary="Créer un sondage",
-    description="Crée un sondage lié à un événement avec au moins une question et deux choix par question.",
+    description=(
+        "Crée un sondage associé à un événement et à son créateur. Le sondage "
+        "doit contenir au moins une question et chaque question doit proposer "
+        "au moins deux choix. Les votes sont ajoutés ultérieurement par la "
+        "route dédiée et le statut 201 confirme la création."
+    ),
 )
 async def create_sondage(data: SondageCreate) -> Sondage:
     """Crée un sondage avec au moins une question et deux choix par question."""
@@ -56,7 +69,11 @@ async def create_sondage(data: SondageCreate) -> Sondage:
 @router.patch(
     "/{sondage_id}",
     summary="Modifier un sondage",
-    description="Remplace les questions d'un sondage existant tout en conservant son événement.",
+    description=(
+        "Met à jour les questions d'un sondage existant. La nouvelle liste "
+        "doit toujours contenir au moins une question avec plusieurs choix ; "
+        "l'événement et le créateur du sondage restent inchangés."
+    ),
 )
 async def update_sondage(
     sondage_id: PydanticObjectId,
@@ -78,7 +95,11 @@ async def update_sondage(
     "/{sondage_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Supprimer un sondage",
-    description="Supprime le sondage et les votes qui lui sont associés.",
+    description=(
+        "Supprime définitivement un sondage et les votes stockés avec celui-ci. "
+        "La réponse 204 ne contient aucun document ; une réponse 404 indique "
+        "que le sondage demandé n'existe pas."
+    ),
 )
 async def delete_sondage(sondage_id: PydanticObjectId) -> None:
     """Supprime un sondage et les votes qui lui sont associés."""
@@ -93,7 +114,13 @@ async def delete_sondage(sondage_id: PydanticObjectId) -> None:
     "/{sondage_id}/votes",
     status_code=status.HTTP_201_CREATED,
     summary="Répondre à une question",
-    description="Enregistre le choix d'un participant. Un participant ne peut répondre qu'une fois à une même question.",
+    description=(
+        "Enregistre le choix d'un participant pour une question précise. "
+        "Le choix doit appartenir à la question ciblée et un même participant "
+        "ne peut répondre qu'une seule fois à cette question. Une question ou "
+        "un choix inconnu provoque une erreur et un vote déjà enregistré "
+        "retourne 409."
+    ),
 )
 async def vote(
     sondage_id: PydanticObjectId,

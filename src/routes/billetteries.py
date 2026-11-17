@@ -20,7 +20,11 @@ router = APIRouter(
 @router.get(
     "/",
     summary="Lister les billetteries",
-    description="Retourne toutes les billetteries avec leurs types de billets et les billets achetés.",
+    description=(
+        "Retourne toutes les billetteries créées pour les événements publics. "
+        "Chaque résultat contient les types de billets, leur montant, leur "
+        "quantité maximale et les billets déjà attribués."
+    ),
 )
 async def list_billetteries() -> list[Billetterie]:
     """Retourne toutes les billetteries disponibles."""
@@ -30,7 +34,11 @@ async def list_billetteries() -> list[Billetterie]:
 @router.get(
     "/{billetterie_id}",
     summary="Consulter une billetterie",
-    description="Retourne le détail d'une billetterie. Retourne 404 si elle n'existe pas.",
+    description=(
+        "Retourne le détail d'une billetterie avec son événement, ses types "
+        "de billets et les informations des acheteurs enregistrés. Retourne "
+        "404 lorsque l'identifiant ne correspond à aucune billetterie."
+    ),
 )
 async def get_billetterie(billetterie_id: PydanticObjectId) -> Billetterie:
     """Retourne une billetterie avec ses types de billets et achats."""
@@ -45,7 +53,12 @@ async def get_billetterie(billetterie_id: PydanticObjectId) -> Billetterie:
     "/",
     status_code=status.HTTP_201_CREATED,
     summary="Créer une billetterie",
-    description="Crée une billetterie pour un événement public. Seul un organisateur de l'événement peut la créer.",
+    description=(
+        "Crée une billetterie pour un événement public avec au moins un type "
+        "de billet. L'utilisateur indiqué comme organisateur doit appartenir "
+        "à la liste des organisateurs de l'événement. Les événements privés "
+        "ou les utilisateurs non autorisés sont refusés."
+    ),
 )
 async def create_billetterie(data: BilletterieCreate) -> Billetterie:
     """Crée une billetterie uniquement pour un événement public."""
@@ -71,7 +84,11 @@ async def create_billetterie(data: BilletterieCreate) -> Billetterie:
 @router.patch(
     "/{billetterie_id}",
     summary="Modifier une billetterie",
-    description="Met à jour les types de billets proposés par une billetterie existante.",
+    description=(
+        "Met à jour la liste des types de billets d'une billetterie existante. "
+        "Chaque type conserve un nom, un montant positif ou nul et une quantité "
+        "strictement positive. La billetterie ciblée doit exister."
+    ),
 )
 async def update_billetterie(
     billetterie_id: PydanticObjectId,
@@ -93,7 +110,11 @@ async def update_billetterie(
     "/{billetterie_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Supprimer une billetterie",
-    description="Supprime une billetterie et les billets qui lui sont associés.",
+    description=(
+        "Supprime définitivement une billetterie et les billets enregistrés "
+        "dans celle-ci. Retourne 204 en cas de succès et 404 si la billetterie "
+        "n'existe pas."
+    ),
 )
 async def delete_billetterie(billetterie_id: PydanticObjectId) -> None:
     """Supprime une billetterie et les billets qui lui sont associés."""
@@ -108,7 +129,12 @@ async def delete_billetterie(billetterie_id: PydanticObjectId) -> None:
     "/{billetterie_id}/billets",
     status_code=status.HTTP_201_CREATED,
     summary="Acheter un billet",
-    description="Achète un billet d'un type disponible. Un acheteur ne peut obtenir qu'un seul billet par billetterie.",
+    description=(
+        "Attribue un billet à une personne pour un type de billet donné. Le "
+        "type doit exister et sa quantité disponible ne doit pas être épuisée. "
+        "Une même personne ne peut acheter qu'un seul billet dans la "
+        "billetterie ; les doublons ou les stocks épuisés retournent 409."
+    ),
 )
 async def buy_ticket(
     billetterie_id: PydanticObjectId,

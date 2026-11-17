@@ -18,7 +18,11 @@ router = APIRouter(
 @router.get(
     "/",
     summary="Lister les éléments",
-    description="Retourne tous les éléments déclarés dans les shopping lists des événements.",
+    description=(
+        "Retourne toutes les contributions enregistrées dans les shopping "
+        "lists. Chaque élément indique l'événement, l'utilisateur, le nom de "
+        "la contribution, sa quantité et son heure d'arrivée."
+    ),
 )
 async def list_items() -> list[ShoppingItem]:
     """Retourne tous les éléments des shopping lists."""
@@ -28,7 +32,11 @@ async def list_items() -> list[ShoppingItem]:
 @router.get(
     "/{item_id}",
     summary="Consulter un élément",
-    description="Retourne un élément de shopping list grâce à son identifiant.",
+    description=(
+        "Retourne une contribution précise à partir de `item_id`. Le résultat "
+        "contient les informations de l'utilisateur et de l'événement associés. "
+        "Retourne 404 si l'élément demandé n'existe pas."
+    ),
 )
 async def get_item(item_id: PydanticObjectId) -> ShoppingItem:
     """Retourne un élément de shopping list grâce à son identifiant."""
@@ -43,7 +51,12 @@ async def get_item(item_id: PydanticObjectId) -> ShoppingItem:
     "/",
     status_code=status.HTTP_201_CREATED,
     summary="Ajouter un élément",
-    description="Ajoute une contribution si la shopping list est activée. Le nom doit être unique pour l'événement.",
+    description=(
+        "Ajoute une contribution à un événement lorsque sa shopping list est "
+        "activée. Le nom de l'élément doit être unique dans cet événement, la "
+        "quantité doit être positive et l'heure d'arrivée doit être valide. "
+        "L'événement désactivé retourne 400 et un doublon retourne 409."
+    ),
 )
 async def create_item(data: ShoppingItemCreate) -> ShoppingItem:
     """Ajoute un élément si la shopping list de l'événement est activée."""
@@ -74,7 +87,12 @@ async def create_item(data: ShoppingItemCreate) -> ShoppingItem:
 @router.patch(
     "/{item_id}",
     summary="Modifier un élément",
-    description="Modifie la quantité, l'heure ou le nom sans créer de doublon dans l'événement.",
+    description=(
+        "Modifie partiellement une contribution existante, notamment son nom, "
+        "sa quantité ou son heure d'arrivée. Un changement de nom est contrôlé "
+        "pour conserver l'unicité des éléments dans l'événement. Retourne 404 "
+        "si l'élément est absent et 409 en cas de doublon."
+    ),
 )
 async def update_item(
     item_id: PydanticObjectId,
@@ -108,7 +126,11 @@ async def update_item(
     "/{item_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Supprimer un élément",
-    description="Supprime une contribution de la shopping list.",
+    description=(
+        "Supprime définitivement une contribution de la shopping list. "
+        "Retourne 204 sans contenu si la suppression réussit et 404 si "
+        "l'identifiant ne correspond à aucun élément."
+    ),
 )
 async def delete_item(item_id: PydanticObjectId) -> None:
     """Supprime un élément d'une shopping list."""

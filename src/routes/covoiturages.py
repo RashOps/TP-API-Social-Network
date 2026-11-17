@@ -18,7 +18,11 @@ router = APIRouter(
 @router.get(
     "/",
     summary="Lister les offres de covoiturage",
-    description="Retourne toutes les offres de covoiturage disponibles dans l'application.",
+    description=(
+        "Retourne toutes les offres de covoiturage enregistrées, avec leur "
+        "événement, conducteur, lieu de départ, heure, prix, nombre de places "
+        "et écart maximal accepté."
+    ),
 )
 async def list_covoiturages() -> list[Covoiturage]:
     """Retourne toutes les offres de covoiturage."""
@@ -28,7 +32,12 @@ async def list_covoiturages() -> list[Covoiturage]:
 @router.get(
     "/{covoiturage_id}",
     summary="Consulter une offre",
-    description="Retourne une offre de covoiturage avec son départ, son prix et ses places disponibles.",
+    description=(
+        "Retourne le détail d'une offre grâce à `covoiturage_id`. La réponse "
+        "décrit le trajet proposé et ses conditions : départ, horaire, prix, "
+        "places disponibles et marge de temps autorisée. Retourne 404 si "
+        "l'offre n'existe pas."
+    ),
 )
 async def get_covoiturage(
     covoiturage_id: PydanticObjectId,
@@ -45,7 +54,12 @@ async def get_covoiturage(
     "/",
     status_code=status.HTTP_201_CREATED,
     summary="Créer une offre",
-    description="Crée une offre uniquement si le covoiturage est activé pour l'événement.",
+    description=(
+        "Crée une offre de trajet associée à un événement. L'événement doit "
+        "exister et avoir l'option covoiturage activée ; sinon la création est "
+        "refusée. Le prix doit être positif ou nul, le nombre de places "
+        "strictement positif et l'écart maximal supérieur ou égal à zéro."
+    ),
 )
 async def create_covoiturage(data: CovoiturageCreate) -> Covoiturage:
     """Crée une offre si le covoiturage est activé pour l'événement."""
@@ -66,7 +80,11 @@ async def create_covoiturage(data: CovoiturageCreate) -> Covoiturage:
 @router.patch(
     "/{covoiturage_id}",
     summary="Modifier une offre",
-    description="Met à jour les informations d'une offre de covoiturage existante.",
+    description=(
+        "Met à jour partiellement une offre de covoiturage existante. Les "
+        "champs non fournis restent inchangés et les contraintes de prix, de "
+        "places et d'écart maximal sont revalidées automatiquement."
+    ),
 )
 async def update_covoiturage(
     covoiturage_id: PydanticObjectId,
@@ -88,7 +106,11 @@ async def update_covoiturage(
     "/{covoiturage_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Supprimer une offre",
-    description="Supprime définitivement une offre de covoiturage.",
+    description=(
+        "Supprime définitivement l'offre correspondant à `covoiturage_id`. "
+        "Retourne 204 sans contenu en cas de succès et 404 lorsque l'offre "
+        "demandée n'existe pas."
+    ),
 )
 async def delete_covoiturage(covoiturage_id: PydanticObjectId) -> None:
     """Supprime une offre de covoiturage."""
