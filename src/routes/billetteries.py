@@ -17,13 +17,23 @@ router = APIRouter(
 )
 
 
-@router.get("/")
+@router.get(
+    "/",
+    summary="Lister les billetteries",
+    description="Retourne toutes les billetteries avec leurs types de billets et les billets achetés.",
+)
 async def list_billetteries() -> list[Billetterie]:
+    """Retourne toutes les billetteries disponibles."""
     return await Billetterie.find_all().to_list()
 
 
-@router.get("/{billetterie_id}")
+@router.get(
+    "/{billetterie_id}",
+    summary="Consulter une billetterie",
+    description="Retourne le détail d'une billetterie. Retourne 404 si elle n'existe pas.",
+)
 async def get_billetterie(billetterie_id: PydanticObjectId) -> Billetterie:
+    """Retourne une billetterie avec ses types de billets et achats."""
     billetterie = await Billetterie.get(billetterie_id)
     if billetterie is None:
         raise HTTPException(status_code=404, detail="Billetterie introuvable")
@@ -31,8 +41,14 @@ async def get_billetterie(billetterie_id: PydanticObjectId) -> Billetterie:
     return billetterie
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    summary="Créer une billetterie",
+    description="Crée une billetterie pour un événement public. Seul un organisateur de l'événement peut la créer.",
+)
 async def create_billetterie(data: BilletterieCreate) -> Billetterie:
+    """Crée une billetterie uniquement pour un événement public."""
     evenement = await Event.get(data.evenement_id)
     if evenement is None:
         raise HTTPException(status_code=404, detail="Événement introuvable")
@@ -52,11 +68,16 @@ async def create_billetterie(data: BilletterieCreate) -> Billetterie:
     return billetterie
 
 
-@router.patch("/{billetterie_id}")
+@router.patch(
+    "/{billetterie_id}",
+    summary="Modifier une billetterie",
+    description="Met à jour les types de billets proposés par une billetterie existante.",
+)
 async def update_billetterie(
     billetterie_id: PydanticObjectId,
     data: BilletterieUpdate,
 ) -> Billetterie:
+    """Modifie les types de billets d'une billetterie."""
     billetterie = await Billetterie.get(billetterie_id)
     if billetterie is None:
         raise HTTPException(status_code=404, detail="Billetterie introuvable")
@@ -71,8 +92,11 @@ async def update_billetterie(
 @router.delete(
     "/{billetterie_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    summary="Supprimer une billetterie",
+    description="Supprime une billetterie et les billets qui lui sont associés.",
 )
 async def delete_billetterie(billetterie_id: PydanticObjectId) -> None:
+    """Supprime une billetterie et les billets qui lui sont associés."""
     billetterie = await Billetterie.get(billetterie_id)
     if billetterie is None:
         raise HTTPException(status_code=404, detail="Billetterie introuvable")
@@ -83,11 +107,14 @@ async def delete_billetterie(billetterie_id: PydanticObjectId) -> None:
 @router.post(
     "/{billetterie_id}/billets",
     status_code=status.HTTP_201_CREATED,
+    summary="Acheter un billet",
+    description="Achète un billet d'un type disponible. Un acheteur ne peut obtenir qu'un seul billet par billetterie.",
 )
 async def buy_ticket(
     billetterie_id: PydanticObjectId,
     data: AchatBilletCreate,
 ) -> Billet:
+    """Achète un billet si le type n'est pas épuisé et l'acheteur n'en possède pas déjà un."""
     billetterie = await Billetterie.get(billetterie_id)
     if billetterie is None:
         raise HTTPException(status_code=404, detail="Billetterie introuvable")

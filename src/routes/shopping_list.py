@@ -15,13 +15,23 @@ router = APIRouter(
 )
 
 
-@router.get("/")
+@router.get(
+    "/",
+    summary="Lister les éléments",
+    description="Retourne tous les éléments déclarés dans les shopping lists des événements.",
+)
 async def list_items() -> list[ShoppingItem]:
+    """Retourne tous les éléments des shopping lists."""
     return await ShoppingItem.find_all().to_list()
 
 
-@router.get("/{item_id}")
+@router.get(
+    "/{item_id}",
+    summary="Consulter un élément",
+    description="Retourne un élément de shopping list grâce à son identifiant.",
+)
 async def get_item(item_id: PydanticObjectId) -> ShoppingItem:
+    """Retourne un élément de shopping list grâce à son identifiant."""
     item = await ShoppingItem.get(item_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Élément introuvable")
@@ -29,8 +39,14 @@ async def get_item(item_id: PydanticObjectId) -> ShoppingItem:
     return item
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    summary="Ajouter un élément",
+    description="Ajoute une contribution si la shopping list est activée. Le nom doit être unique pour l'événement.",
+)
 async def create_item(data: ShoppingItemCreate) -> ShoppingItem:
+    """Ajoute un élément si la shopping list de l'événement est activée."""
     event = await Event.get(data.evenement_id)
     if event is None:
         raise HTTPException(status_code=404, detail="Événement introuvable")
@@ -55,11 +71,16 @@ async def create_item(data: ShoppingItemCreate) -> ShoppingItem:
     return item
 
 
-@router.patch("/{item_id}")
+@router.patch(
+    "/{item_id}",
+    summary="Modifier un élément",
+    description="Modifie la quantité, l'heure ou le nom sans créer de doublon dans l'événement.",
+)
 async def update_item(
     item_id: PydanticObjectId,
     data: ShoppingItemUpdate,
 ) -> ShoppingItem:
+    """Modifie un élément sans autoriser un doublon dans l'événement."""
     item = await ShoppingItem.get(item_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Élément introuvable")
@@ -83,8 +104,14 @@ async def update_item(
     return item
 
 
-@router.delete("/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{item_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Supprimer un élément",
+    description="Supprime une contribution de la shopping list.",
+)
 async def delete_item(item_id: PydanticObjectId) -> None:
+    """Supprime un élément d'une shopping list."""
     item = await ShoppingItem.get(item_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Élément introuvable")
