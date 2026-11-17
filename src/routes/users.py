@@ -1,18 +1,21 @@
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pymongo.errors import DuplicateKeyError
 
-from src.models.user import User, UserCreate, UserUpdate
+from src.auth import get_current_user, hash_password
+from src.models.user import User, UserCreate, UserResponse, UserUpdate
 
 
 router = APIRouter(
     prefix="/users",
     tags=["Users"],
+    dependencies=[Depends(get_current_user)],
 )
 
 
 @router.get(
     "/",
+    response_model=list[UserResponse],
     summary="Lister les utilisateurs",
     description=(
         "Retourne la liste complète des utilisateurs enregistrés dans MongoDB. "
@@ -28,6 +31,7 @@ async def list_users() -> list[User]:
 
 @router.get(
     "/{user_id}",
+    response_model=UserResponse,
     summary="Consulter un utilisateur",
     description=(
         "Recherche un utilisateur à partir de son identifiant MongoDB valide "
@@ -47,6 +51,7 @@ async def get_user(user_id: PydanticObjectId) -> User:
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
+    response_model=UserResponse,
     summary="Créer un utilisateur",
     description=(
         "Crée un compte utilisateur à partir de son nom, son email, son mot "
@@ -57,7 +62,9 @@ async def get_user(user_id: PydanticObjectId) -> User:
 )
 async def create_user(user_data: UserCreate) -> User:
     """Crée un utilisateur et refuse les emails déjà utilisés."""
-    user = User(**user_data.model_dump())
+    user_values = user_data.model_dump()
+    user_values["password"] = hash_password(user_values["password"])
+    user = User(**user_values)
     try:
         await user.insert()
     except DuplicateKeyError:
@@ -68,6 +75,7 @@ async def create_user(user_data: UserCreate) -> User:
 
 @router.patch(
     "/{user_id}",
+    response_model=UserResponse,
     summary="Modifier un utilisateur",
     description=(
         "Met à jour partiellement le compte correspondant à `user_id`. Les "

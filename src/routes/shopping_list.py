@@ -1,6 +1,7 @@
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from src.auth import get_current_user
 from src.models.event import Event
 from src.models.shopping_list import (
     ShoppingItem,
@@ -12,6 +13,7 @@ from src.models.shopping_list import (
 router = APIRouter(
     prefix="/shopping-list",
     tags=["Shopping list"],
+    dependencies=[Depends(get_current_user)],
 )
 
 

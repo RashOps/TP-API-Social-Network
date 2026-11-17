@@ -1,7 +1,8 @@
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
+from src.auth import get_current_user
 from src.models.discussion import (
     Commentaire,
     Discussion,
@@ -24,6 +25,7 @@ class CommentaireCreate(BaseModel):
 router = APIRouter(
     prefix="/discussions",
     tags=["Discussions"],
+    dependencies=[Depends(get_current_user)],
 )
 
 

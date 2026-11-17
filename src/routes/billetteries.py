@@ -1,6 +1,7 @@
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from src.auth import get_current_user
 from src.models.billetterie import (
     AchatBilletCreate,
     Billet,
@@ -14,6 +15,7 @@ from src.models.event import Event
 router = APIRouter(
     prefix="/billetteries",
     tags=["Billetteries"],
+    dependencies=[Depends(get_current_user)],
 )
 
 

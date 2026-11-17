@@ -22,6 +22,7 @@ communautaires.
 - Billetteries pour les événements publics.
 - Shopping lists liées aux événements.
 - Offres de covoiturage activables par événement.
+- Authentification JWT avec protection des routes métier.
 
 ## Prérequis
 
@@ -37,6 +38,9 @@ Depuis la racine du projet :
 uv sync
 ```
 
+Cette commande installe également la dépendance `PyJWT` utilisée pour signer
+et vérifier les tokens.
+
 ## Configuration
 
 Copiez `.env.example` vers `.env`, puis renseignez les informations MongoDB :
@@ -50,6 +54,9 @@ Exemple :
 ```env
 MONGO_URI="mongodb://localhost:27017/"
 MONGO_DB_NAME="social_network_event"
+JWT_SECRET_KEY="replace-with-a-long-random-secret-at-least-32-characters"
+JWT_ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES="30"
 ```
 
 La configuration est chargée par [src/config.py](src/config.py). Ne commitez
@@ -71,6 +78,41 @@ Documentation interactive :
 
 - Swagger UI : http://127.0.0.1:8000/docs
 - ReDoc : http://127.0.0.1:8000/redoc
+
+## Authentification JWT
+
+La création de compte et la connexion sont publiques :
+
+```text
+POST /api/v1/auth/register
+POST /api/v1/auth/login
+```
+
+La connexion utilise le format OAuth2 formulaire :
+
+```powershell
+curl.exe -X POST http://127.0.0.1:8000/api/v1/auth/login `
+  -H "Content-Type: application/x-www-form-urlencoded" `
+  -d "username=alice@example.com&password=sample-password"
+```
+
+La réponse contient un token Bearer :
+
+```json
+{
+  "access_token": "eyJ...",
+  "token_type": "bearer"
+}
+```
+
+Pour appeler une route protégée, transmettre le token dans l'en-tête :
+
+```text
+Authorization: Bearer <access_token>
+```
+
+Toutes les routes métier nécessitent un token JWT valide. Le secret
+`JWT_SECRET_KEY` doit être long, aléatoire et différent en production.
 
 Le serveur utilise le rechargement automatique en mode développement.
 

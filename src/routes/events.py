@@ -1,12 +1,14 @@
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from src.auth import get_current_user
 from src.models.event import Event, EventCreate, EventUpdate
 
 
 router = APIRouter(
     prefix="/events",
     tags=["Events"],
+    dependencies=[Depends(get_current_user)],
 )
 
 

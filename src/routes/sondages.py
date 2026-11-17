@@ -1,6 +1,7 @@
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from src.auth import get_current_user
 from src.models.sondage import (
     Sondage,
     SondageCreate,
@@ -13,6 +14,7 @@ from src.models.sondage import (
 router = APIRouter(
     prefix="/sondages",
     tags=["Sondages"],
+    dependencies=[Depends(get_current_user)],
 )
 
 

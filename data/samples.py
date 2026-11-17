@@ -8,6 +8,7 @@ from beanie import PydanticObjectId
 # Permet aussi l'exécution directe avec `python data/samples.py`.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from src.auth import hash_password
 from src.models.album import Album, Photo
 from src.models.billetterie import Acheteur, Billet, Billetterie, TypeBillet
 from src.models.covoiturage import Covoiturage
@@ -49,14 +50,14 @@ async def main() -> None:
             id=USER_ORGANIZER_ID,
             nom="Alice Organisatrice",
             email="alice@example.com",
-            password="sample-password-hash",
+            password=hash_password("sample-password"),
             role="organisateur",
         )
         user_member = User(
             id=USER_MEMBER_ID,
             nom="Bob Participant",
             email="bob@example.com",
-            password="sample-password-hash",
+            password=hash_password("sample-password"),
             role="membre",
         )
         await save_sample(user_organizer)

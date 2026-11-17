@@ -29,6 +29,13 @@ class Settings(BaseSettings):
         min_length=1,
         max_length=64
     )
+    jwt_secret_key: str = Field(
+        default="development-secret-change-me-123456",
+        description="Secret used to sign JWT tokens",
+        min_length=32,
+    )
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = Field(default=30, gt=0)
 
     # API Settings
     cors_origins: list[str] = Field(

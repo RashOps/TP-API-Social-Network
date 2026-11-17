@@ -14,6 +14,7 @@ from src.models.shopping_list import ShoppingItem
 from src.models.user import User
 from src.routes import (
     albums,
+    auth,
     billetteries,
     covoiturages,
     discussions,
@@ -66,6 +67,7 @@ app.add_middleware(
 )
 
 app.include_router(users.router, prefix=prefix)
+app.include_router(auth.router, prefix=prefix)
 app.include_router(groupes.router, prefix=prefix)
 app.include_router(events.router, prefix=prefix)
 app.include_router(discussions.router, prefix=prefix)

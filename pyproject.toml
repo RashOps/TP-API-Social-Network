@@ -8,6 +8,7 @@ dependencies = [
     "beanie[srv]>=2.2.0",
     "fastapi[standard]>=0.163.1",
     "motor>=3.7.1",
+    "PyJWT>=2.10.1",
     "pydantic>=2.14.3",
     "python-dotenv>=1.2.4",
 ]

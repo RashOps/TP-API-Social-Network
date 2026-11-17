@@ -1,6 +1,7 @@
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from src.auth import get_current_user
 from src.models.covoiturage import (
     Covoiturage,
     CovoiturageCreate,
@@ -12,6 +13,7 @@ from src.models.event import Event
 router = APIRouter(
     prefix="/covoiturages",
     tags=["Covoiturages"],
+    dependencies=[Depends(get_current_user)],
 )
 
 

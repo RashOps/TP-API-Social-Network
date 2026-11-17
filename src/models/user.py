@@ -1,4 +1,4 @@
-from beanie import Document, Indexed
+from beanie import Document, Indexed, PydanticObjectId
 from pydantic import BaseModel, EmailStr
 
 
@@ -14,6 +14,13 @@ class UserUpdate(BaseModel):
     email: EmailStr | None = None
     password: str | None = None
     role: str | None = None
+
+
+class UserResponse(BaseModel):
+    id: PydanticObjectId
+    nom: str
+    email: EmailStr
+    role: str
 
 
 class User(Document):
